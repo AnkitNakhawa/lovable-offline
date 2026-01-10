@@ -1,0 +1,7 @@
+{
+  "name": "lovable-offline",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
