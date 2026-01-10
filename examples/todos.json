@@ -1,0 +1,22 @@
+{
+  "name": "todo-app",
+  "stack": "nextjs",
+  "models": [
+    {
+      "name": "Todo",
+      "fields": [
+        { "name": "title", "type": "string" },
+        { "name": "done", "type": "boolean" }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "route": "/",
+      "title": "Todos",
+      "blocks": [
+        { "type": "TableCRUD", "model": "Todo" }
+      ]
+    }
+  ]
+}
