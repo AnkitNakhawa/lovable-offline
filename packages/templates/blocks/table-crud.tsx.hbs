@@ -1,0 +1,102 @@
+'use client'
+
+import React, { useState } from 'react'
+
+export default function {{modelName}}Crud({ initialData, actions }: any) {
+const [data, setData] = useState(initialData)
+const [isOpen, setIsOpen] = useState(false)
+const [formData, setFormData] = useState({})
+
+const handleSubmit = async (e: any) => {
+e.preventDefault()
+await actions.create(formData)
+setIsOpen(false)
+// In a real app we'd await the revalidate, but for now simplistic optimistic UI or reload
+window.location.reload()
+}
+
+const handleDelete = async (id: string) => {
+await actions.delete(id)
+window.location.reload()
+}
+
+return (
+<div className="p-4 space-y-4">
+    <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold">{{modelName}}s</h2>
+        <button onClick={()=> setIsOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+            Add {{modelName}}
+        </button>
+    </div>
+
+    <div className="border rounded-lg overflow-hidden">
+        <table className="w-full text-left text-sm">
+            <thead className="bg-gray-100">
+                <tr>
+                    <th className="p-3 font-medium">ID</th>
+                    {{#each fields}}
+                    <th className="p-3 font-medium">{{this.name}}</th>
+                    {{/each}}
+                    <th className="p-3 font-medium text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody className="divide-y">
+                {data.map((item: any) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="p-3 text-gray-500 font-mono">{item.id.slice(-4)}</td>
+                    {{#each fields}}
+                    <td className="p-3">{String(item['{{this.name}}'])}</td>
+                    {{/each}}
+                    <td className="p-3 text-right">
+                        <button onClick={()=> handleDelete(item.id)}
+                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                            >
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                ))}
+                {data.length === 0 && (
+                <tr>
+                    <td colSpan={ {{fields.length}} + 2 } className="p-8 text-center text-gray-400">
+                        No records found
+                    </td>
+                </tr>
+                )}
+            </tbody>
+        </table>
+    </div>
+
+    {isOpen && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
+            <h3 className="text-lg font-bold">New {{modelName}}</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {{#each fields}}
+                <div>
+                    <label className="block text-sm font-medium mb-1 capitalize">{{this.name}}</label>
+                    <input name="{{this.name}}" type="{{#if (eq this.type 'number')}}number{{else}}text{{/if}}"
+                        className="w-full border rounded p-2" onChange={e=> setFormData({...formData, {{this.name}}:
+                    e.target.value})}
+                    />
+                </div>
+                {{/each}}
+                <div className="flex justify-end gap-2 pt-2">
+                    <button type="button" onClick={()=> setIsOpen(false)}
+                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                        >
+                        Cancel
+                    </button>
+                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    )}
+</div>
+)
+}

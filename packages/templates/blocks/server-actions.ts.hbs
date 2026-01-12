@@ -1,0 +1,35 @@
+'use server'
+
+import { PrismaClient } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
+
+const prisma = new PrismaClient()
+
+export async function get{{modelName}}s() {
+return await prisma.{{modelNameLower}}.findMany()
+}
+
+export async function create{{modelName}}(data: any) {
+const result = await prisma.{{modelNameLower}}.create({
+data: data
+})
+revalidatePath('/')
+return result
+}
+
+export async function update{{modelName}}(id: string, data: any) {
+const result = await prisma.{{modelNameLower}}.update({
+where: { id },
+data: data
+})
+revalidatePath('/')
+return result
+}
+
+export async function delete{{modelName}}(id: string) {
+const result = await prisma.{{modelNameLower}}.delete({
+where: { id }
+})
+revalidatePath('/')
+return result
+}
