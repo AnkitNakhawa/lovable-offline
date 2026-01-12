@@ -10,11 +10,14 @@ export async function generatePages(
   outDir: string
 ) {
   for (const page of pages) {
-    const blockCode = await Promise.all(
+    const blockResults = await Promise.all(
       page.blocks.map(block =>
         generateBlock(block, models, outDir)
       )
     )
+
+    const uniqueImports = Array.from(new Set(blockResults.flatMap(b => b.imports)));
+    const blockCode = blockResults.map(b => b.code).join("\n");
 
     const pagePath = path.join(
       outDir,
@@ -27,7 +30,8 @@ export async function generatePages(
       pagePath,
       renderTemplate("page.tsx.hbs", {
         title: page.title,
-        blocks: blockCode.join("\n")
+        blocks: blockCode,
+        imports: uniqueImports
       })
     )
   }

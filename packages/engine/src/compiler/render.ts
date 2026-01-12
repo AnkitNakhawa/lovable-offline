@@ -2,6 +2,12 @@ import Handlebars from 'handlebars';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+
+// Register helpers
+Handlebars.registerHelper('eq', function (a, b) {
+    return a === b;
+});
+
 export function renderTemplate(templateName: string, context: any): string {
     const templatePath = resolveTemplatePath(templateName);
     const content = fs.readFileSync(templatePath, 'utf-8');
@@ -17,11 +23,15 @@ function resolveTemplatePath(name: string): string {
     let attempt = path.join(baseTemplates, name);
     if (fs.existsSync(attempt)) return attempt;
 
+    // Check root templates for blocks etc.
+    attempt = path.join(rootTemplates, name);
+    if (fs.existsSync(attempt)) return attempt;
+
     const dirs = ['app'];
     for (const d of dirs) {
         attempt = path.join(baseTemplates, d, name);
         if (fs.existsSync(attempt)) return attempt;
     }
 
-    throw new Error(`Template not found: ${name} (looked in ${baseTemplates})`);
+    throw new Error(`Template not found: ${name} (looked in ${baseTemplates} and ${rootTemplates})`);
 }

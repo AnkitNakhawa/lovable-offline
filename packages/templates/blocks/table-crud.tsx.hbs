@@ -77,10 +77,19 @@ return (
                 {{#each fields}}
                 <div>
                     <label className="block text-sm font-medium mb-1 capitalize">{{this.name}}</label>
-                    <input name="{{this.name}}" type="{{#if (eq this.type 'number')}}number{{else}}text{{/if}}"
-                        className="w-full border rounded p-2" onChange={e=> setFormData({...formData, {{this.name}}:
-                    e.target.value})}
+                    {{#if (eq this.type 'boolean')}}
+                    <input name="{{this.name}}" type="checkbox" className="w-4 h-4 rounded border-gray-300"
+                        onChange={e=> setFormData({...formData, {{this.name}}: e.target.checked})}
                     />
+                    {{else if (eq this.type 'number')}}
+                    <input name="{{this.name}}" type="number" className="w-full border rounded p-2" onChange={e=>
+                    setFormData({...formData, {{this.name}}: Number(e.target.value)})}
+                    />
+                    {{else}}
+                    <input name="{{this.name}}" type="text" className="w-full border rounded p-2" onChange={e=>
+                    setFormData({...formData, {{this.name}}: e.target.value})}
+                    />
+                    {{/if}}
                 </div>
                 {{/each}}
                 <div className="flex justify-end gap-2 pt-2">

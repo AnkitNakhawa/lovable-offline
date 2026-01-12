@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { renderTemplate } from "./render";
 
-export async function generateBlock(block: BlockSpec, models: ModelSpec[], outDir: string): Promise<string> {
+export async function generateBlock(block: BlockSpec, models: ModelSpec[], outDir: string): Promise<{ code: string, imports: string[] }> {
     if (block.type === 'TableCRUD') {
         const modelName = block.model;
         const model = models.find(m => m.name === modelName);
@@ -30,12 +30,19 @@ export async function generateBlock(block: BlockSpec, models: ModelSpec[], outDi
         await fs.mkdir(path.dirname(componentPath), { recursive: true });
         await fs.writeFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${componentContent}`);
 
-        return `
+        // 3. Return glue code and imports
+        return {
+            code: `
         <${modelName}Crud 
             initialData={await get${modelName}s()} 
             actions={{ create: create${modelName}, update: update${modelName}, delete: delete${modelName} }} 
         />
-        `;
+        `,
+            imports: [
+                `import ${modelName}Crud from "@/components/generated/${modelName}Crud";`,
+                `import { get${modelName}s, create${modelName}, update${modelName}, delete${modelName} } from "@/app/actions/${modelNameLower}";`
+            ]
+        };
     }
-    return "";
+    return { code: "", imports: [] };
 }
