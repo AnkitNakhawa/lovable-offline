@@ -51,4 +51,11 @@ examples/*/out/
 
 # OS
 .DS_Store
-Thumbs.db
+
+# Test Artifacts
+test-output/
+my-app/
+my-app-fixed/
+dummy_spec.json
+example.json
+
