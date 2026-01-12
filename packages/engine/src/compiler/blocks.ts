@@ -44,5 +44,44 @@ export async function generateBlock(block: BlockSpec, models: ModelSpec[], outDi
             ]
         };
     }
+    if (block.type === 'Hero') {
+        const uniqueId = Math.random().toString(36).substring(7);
+        const componentName = `Hero${uniqueId}`;
+
+        const componentContent = renderTemplate('blocks/hero.tsx.hbs', {
+            componentName,
+            headline: block.headline,
+            subheadline: block.subheadline,
+            ctaText: block.ctaText
+        });
+
+        const componentPath = path.join(outDir, 'components', 'generated', `${componentName}.tsx`);
+        await fs.mkdir(path.dirname(componentPath), { recursive: true });
+        await fs.writeFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${componentContent}`);
+
+        return {
+            code: `<${componentName} />`,
+            imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
+        };
+    }
+    if (block.type === 'Features') {
+        const uniqueId = Math.random().toString(36).substring(7);
+        const componentName = `Features${uniqueId}`;
+
+        const componentContent = renderTemplate('blocks/features.tsx.hbs', {
+            componentName,
+            title: block.title,
+            features: block.features
+        });
+
+        const componentPath = path.join(outDir, 'components', 'generated', `${componentName}.tsx`);
+        await fs.mkdir(path.dirname(componentPath), { recursive: true });
+        await fs.writeFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${componentContent}`);
+
+        return {
+            code: `<${componentName} />`,
+            imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
+        };
+    }
     return { code: "", imports: [] };
 }
