@@ -21,7 +21,7 @@ export type PageSpec = {
   blocks: BlockSpec[]
 }
 
-export type BlockSpec = TableCRUDBlock | HeroBlock | FeaturesBlock
+export type BlockSpec = TableCRUDBlock | HeroBlock | FeaturesBlock | NavbarBlock | FooterBlock | PricingBlock
 
 export type TableCRUDBlock = {
   type: "TableCRUD"
@@ -39,4 +39,22 @@ export type FeaturesBlock = {
   type: "Features"
   title: string
   features: { title: string, description: string }[]
+}
+
+export type NavbarBlock = {
+  type: "Navbar"
+  logo: string
+  links: { label: string, href: string }[]
+}
+
+export type FooterBlock = {
+  type: "Footer"
+  copyright: string
+  links: { label: string, href: string }[]
+}
+
+export type PricingBlock = {
+  type: "Pricing"
+  title: string
+  plans: { name: string, price: string, features: string[], ctaText: string }[]
 }

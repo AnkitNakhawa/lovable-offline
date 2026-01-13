@@ -83,5 +83,62 @@ export async function generateBlock(block: BlockSpec, models: ModelSpec[], outDi
             imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
         };
     }
+    if (block.type === 'Navbar') {
+        const uniqueId = Math.random().toString(36).substring(7);
+        const componentName = `Navbar${uniqueId}`;
+
+        const componentContent = renderTemplate('blocks/navbar.tsx.hbs', {
+            componentName,
+            logo: block.logo,
+            links: block.links
+        });
+
+        const componentPath = path.join(outDir, 'components', 'generated', `${componentName}.tsx`);
+        await fs.mkdir(path.dirname(componentPath), { recursive: true });
+        await fs.writeFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${componentContent}`);
+
+        return {
+            code: `<${componentName} />`,
+            imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
+        };
+    }
+    if (block.type === 'Footer') {
+        const uniqueId = Math.random().toString(36).substring(7);
+        const componentName = `Footer${uniqueId}`;
+
+        const componentContent = renderTemplate('blocks/footer.tsx.hbs', {
+            componentName,
+            copyright: block.copyright,
+            links: block.links
+        });
+
+        const componentPath = path.join(outDir, 'components', 'generated', `${componentName}.tsx`);
+        await fs.mkdir(path.dirname(componentPath), { recursive: true });
+        await fs.writeFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${componentContent}`);
+
+        return {
+            code: `<${componentName} />`,
+            imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
+        };
+    }
+    if (block.type === 'Pricing') {
+        const uniqueId = Math.random().toString(36).substring(7);
+        const componentName = `Pricing${uniqueId}`;
+
+        const componentContent = renderTemplate('blocks/pricing.tsx.hbs', {
+            componentName,
+            title: block.title,
+            plans: block.plans
+        });
+
+        const componentPath = path.join(outDir, 'components', 'generated', `${componentName}.tsx`);
+        await fs.mkdir(path.dirname(componentPath), { recursive: true });
+        await fs.writeFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${componentContent}`);
+
+        return {
+            code: `<${componentName} />`,
+            imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
+        };
+    }
     return { code: "", imports: [] };
 }
