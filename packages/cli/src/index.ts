@@ -36,4 +36,30 @@ program
         }
     });
 
+program
+    .command('magic')
+    .description('Generate a new app from a natural language prompt')
+    .argument('<prompt>', 'Natural language description of the app')
+    .argument('<out>', 'Output directory')
+    .action(async (prompt, outDir) => {
+        try {
+            console.log(`Thinking about "${prompt}"...`);
+
+            // Dynamic import to avoid load issues if planner isn't built yet during dev
+            const { generateAppSpec } = await import('@lovable/planner');
+
+            const spec = await generateAppSpec(prompt);
+            console.log(`Generated spec for "${spec.name}"!`);
+
+            const absoluteOutDir = path.resolve(process.cwd(), outDir);
+            console.log(`Compiling app to ${absoluteOutDir}...`);
+            await compileApp(spec, absoluteOutDir);
+
+            console.log('Done! Your app is ready.');
+        } catch (error) {
+            console.error('Error:', error);
+            process.exit(1);
+        }
+    });
+
 program.parse();

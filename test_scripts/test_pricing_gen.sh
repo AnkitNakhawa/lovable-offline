@@ -37,7 +37,7 @@ cat <<EOF > pricing_spec.json
           "plans": [
             {
               "name": "Starter",
-              "price": "Free",
+              "price": "$0",
               "features": ["1 User", "5 Projects", "Community Support"],
               "ctaText": "Start Free"
             },

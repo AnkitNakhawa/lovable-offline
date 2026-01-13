@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "target": "es2017",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "declaration": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
