@@ -59,3 +59,9 @@ my-app-fixed/
 dummy_spec.json
 example.json
 
+# Generated Artifacts
+pricing-app/
+test-protection-app/
+todo-app/
+workspaces/
+generated-gym/

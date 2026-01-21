@@ -19,6 +19,7 @@ export default function Home() {
   const [running, setRunning] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -67,6 +68,17 @@ export default function Home() {
       return () => clearInterval(interval);
     }
   }, [activeTab, running]);
+
+  const deleteProject = async (p: string) => {
+    try {
+      await fetch('/api/projects/delete', { method: 'POST', body: JSON.stringify({ project: p }) });
+      setProjects(prev => prev.filter(x => x !== p));
+      if (activeProject === p) setActiveProject(null);
+      setProjectToDelete(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchFiles = async () => {
     if (!activeProject) return;
@@ -173,13 +185,31 @@ export default function Home() {
                 </button>
                 <div className="max-h-60 overflow-y-auto">
                   {projects.map(p => (
-                    <button
-                      key={p}
-                      onClick={() => { setActiveProject(p); setMessages([]); setIsDropdownOpen(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-700 text-gray-300"
-                    >
-                      {p}
-                    </button>
+                    <div key={p} className="flex items-center hover:bg-gray-700 w-full group/item px-0">
+                      {projectToDelete === p ? (
+                        <div className="flex items-center w-full px-4 py-2 bg-red-900/30 gap-2">
+                          <span className="text-xs text-red-300 flex-1">Delete?</span>
+                          <button onClick={(e) => { e.stopPropagation(); deleteProject(p); }} className="text-xs text-red-400 font-bold hover:text-white uppercase">Yes</button>
+                          <button onClick={(e) => { e.stopPropagation(); setProjectToDelete(null); }} className="text-xs text-gray-400 hover:text-white uppercase">No</button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => { setActiveProject(p); setMessages([]); setIsDropdownOpen(false); }}
+                            className="flex-1 text-left px-4 py-2 text-gray-300 truncate"
+                          >
+                            {p}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setProjectToDelete(p); }}
+                            className="px-3 py-2 text-gray-500 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                            title="Delete Project"
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
