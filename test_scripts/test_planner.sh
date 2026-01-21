@@ -19,3 +19,10 @@ echo "Running CLI Magic (This uses Ollama, make sure it's running)..."
 node packages/cli/dist/index.js magic "Create a landing page for a modern gym called FitLife. I want a navbar, a hero section saying 'Get fit today', a features section with 'Personal Training' and '24/7 Access', a pricing section with 'Basic' (\$30) and 'Premium' (\$50) tiers, and a footer." ./generated-gym
 
 echo "Done. Check ./generated-gym/app/page.tsx"
+
+if [ -f "./generated-gym/lovable.json" ]; then
+    echo "SUCCESS: lovable.json was created."
+else
+    echo "FAILURE: lovable.json was NOT created."
+    exit 1
+fi
