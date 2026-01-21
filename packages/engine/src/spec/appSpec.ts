@@ -26,6 +26,7 @@ export type BlockSpec = TableCRUDBlock | HeroBlock | FeaturesBlock | NavbarBlock
 export type TableCRUDBlock = {
   type: "TableCRUD"
   model: string
+  id?: string
 }
 
 export type HeroBlock = {
@@ -33,28 +34,33 @@ export type HeroBlock = {
   headline: string
   subheadline: string
   ctaText: string
+  id?: string
 }
 
 export type FeaturesBlock = {
   type: "Features"
   title: string
   features: { title: string, description: string }[]
+  id?: string
 }
 
 export type NavbarBlock = {
   type: "Navbar"
   logo: string
   links: { label: string, href: string }[]
+  id?: string
 }
 
 export type FooterBlock = {
   type: "Footer"
   copyright: string
   links: { label: string, href: string }[]
+  id?: string
 }
 
 export type PricingBlock = {
   type: "Pricing"
   title: string
   plans: { name: string, price: string, features: string[], ctaText: string }[]
+  id?: string
 }

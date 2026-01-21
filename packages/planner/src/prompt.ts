@@ -97,6 +97,7 @@ export type TableCRUDBlock = {
 2. **Output JSON ONLY**: Do not output any markdown, explanations, or code blocks. Just the raw JSON string.
 3. **Be Creative**: Fill in realistic copy for headlines, features, and plans based on the user's intent.
 4. **Consistency**: Ensure all internal links are valid. Ensure TableCRUD 'model' refers to a valid model in 'models'.
+5. **IMPORTANT**: Each block may have an optional 'id' field. If generating a NEW block, you may omit the id (it will be auto-generated). If you see an existing id in a block, you MUST preserve it exactly.
 
 # Example
 

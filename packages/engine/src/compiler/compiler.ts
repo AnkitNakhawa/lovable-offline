@@ -10,10 +10,9 @@ export async function compileApp(
   outDir: string
 ) {
   await generateBaseProject(spec.name, outDir)
-
-  // Save spec for future edits
-  await fs.writeJSON(path.join(outDir, 'lovable.json'), spec, { spaces: 2 });
-
   await generatePrisma(spec.models, outDir)
   await generatePages(spec.pages, spec.models, outDir)
+
+  // Save spec for future edits (after IDs are generated)
+  await fs.writeJSON(path.join(outDir, 'lovable.json'), spec, { spaces: 2 });
 }
