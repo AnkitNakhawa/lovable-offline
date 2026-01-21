@@ -101,11 +101,12 @@ export default function Home() {
       });
       const data = await res.json();
       setStatusMsg(data.message);
+      if (data.url) setPreviewUrl(data.url);
 
       // Auto-reload iframe after estimated delay
       setTimeout(() => {
         const i = document.getElementById('preview-frame') as HTMLIFrameElement;
-        if (i) i.src = previewUrl;
+        if (i) i.src = data.url || previewUrl;
         setStatusMsg('');
         setRunning(false);
       }, data.estimatedTimeMs);

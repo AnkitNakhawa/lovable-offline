@@ -2,12 +2,30 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
+import net from 'net';
 
 const WORKSPACES_DIR = path.resolve(process.cwd(), '../../workspaces');
 
 declare global {
     var __lovable_dev_server: ChildProcess | undefined;
     var __lovable_server_logs: string[];
+}
+
+function findAvailablePort(startPort: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+        const server = net.createServer();
+        server.listen(startPort, () => {
+            const { port } = server.address() as net.AddressInfo;
+            server.close(() => resolve(port));
+        });
+        server.on('error', (err: any) => {
+            if (err.code === 'EADDRINUSE') {
+                resolve(findAvailablePort(startPort + 1));
+            } else {
+                reject(err);
+            }
+        });
+    });
 }
 
 export async function POST(req: Request) {
@@ -40,10 +58,14 @@ export async function POST(req: Request) {
             if (fs.existsSync(localBin)) prismaCmd = localBin;
         }
 
+        // 3. Find available port
+        const port = await findAvailablePort(3000);
+        console.log(`[API] Found available port for ${project}: ${port}`);
+
         // Use a simpler command structure to avoid shell issues if possible, but && requires shell.
-        let command = `${prismaCmd} generate && npm run dev -- -p 3000`;
+        let command = `${prismaCmd} generate && npm run dev -- -p ${port}`;
         if (!hasDeps) {
-            command = 'npm install && npx prisma generate && npm run dev -- -p 3000';
+            command = `npm install && npx prisma generate && npm run dev -- -p ${port}`;
         }
 
         console.log(`[API] Launching ${project}: ${command}`);
@@ -74,8 +96,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             success: true,
-            message: hasDeps ? 'Starting server... (give it a few seconds)' : 'Installing dependencies (~45s)...',
-            estimatedTimeMs: estTime
+            message: hasDeps ? `Starting server on port ${port}...` : `Installing dependencies (~45s)...`,
+            estimatedTimeMs: estTime,
+            url: `http://localhost:${port}`
         });
 
     } catch (error) {
