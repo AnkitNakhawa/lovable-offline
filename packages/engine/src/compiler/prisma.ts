@@ -22,7 +22,17 @@ datasource db {
 }
 `;
 
-  for (const model of models) {
+  const modelsToGenerate = [...models];
+
+  // If no models defined, add a dummy one to prevent 'prisma generate' failure
+  if (modelsToGenerate.length === 0) {
+    modelsToGenerate.push({
+      name: 'SystemHealth',
+      fields: [{ name: 'status', type: 'string' }]
+    });
+  }
+
+  for (const model of modelsToGenerate) {
     schema += `\nmodel ${model.name} {\n`;
     schema += `  id    String @id @default(cuid())\n`;
 

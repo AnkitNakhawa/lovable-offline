@@ -1,10 +1,11 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import Handlebars from 'handlebars';
+import { getTemplatesDir } from "./render";
 
 export async function generateBaseProject(name: string, outDir: string) {
     //set template directory
-    const templatesDir = path.resolve(__dirname, '../../../templates/base');
+    const templatesDir = path.join(getTemplatesDir(), 'base');
 
     // ensure output dir
     await fs.mkdir(outDir, { recursive: true });

@@ -15,9 +15,20 @@ export function renderTemplate(templateName: string, context: any): string {
     return template(context);
 }
 
+
+let globalTemplatesDir: string | null = null;
+
+export function setTemplatesDir(dir: string) {
+    globalTemplatesDir = dir;
+}
+
+export function getTemplatesDir(): string {
+    return globalTemplatesDir || path.resolve(__dirname, '../../../templates');
+}
+
 function resolveTemplatePath(name: string): string {
     // adding template paths for root + base 
-    const rootTemplates = path.resolve(__dirname, '../../../templates');
+    const rootTemplates = getTemplatesDir();
     const baseTemplates = path.join(rootTemplates, 'base');
 
     let attempt = path.join(baseTemplates, name);
