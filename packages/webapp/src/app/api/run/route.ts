@@ -9,6 +9,8 @@ const WORKSPACES_DIR = path.resolve(process.cwd(), '../../workspaces');
 declare global {
     var __lovable_dev_server: ChildProcess | undefined;
     var __lovable_server_logs: string[];
+    var __lovable_project: string | undefined;
+    var __lovable_url: string | undefined;
 }
 
 function findAvailablePort(startPort: number): Promise<number> {
@@ -35,9 +37,7 @@ export async function POST(req: Request) {
 
         const projectDir = path.join(WORKSPACES_DIR, project);
 
-        // 1. Kill existing
         if (global.__lovable_dev_server) {
-            console.log('[API] Killing active server...');
             try {
                 if (global.__lovable_dev_server.pid) {
                     process.kill(-global.__lovable_dev_server.pid);
@@ -46,9 +46,10 @@ export async function POST(req: Request) {
                 global.__lovable_dev_server.kill();
             }
             global.__lovable_dev_server = undefined;
+            global.__lovable_project = undefined;
+            global.__lovable_url = undefined;
         }
 
-        // 2. Check dependencies
         const nodeModules = path.join(projectDir, 'node_modules');
         const hasDeps = fs.existsSync(nodeModules);
 
@@ -58,17 +59,12 @@ export async function POST(req: Request) {
             if (fs.existsSync(localBin)) prismaCmd = localBin;
         }
 
-        // 3. Find available port
         const port = await findAvailablePort(3000);
-        console.log(`[API] Found available port for ${project}: ${port}`);
 
-        // Use a simpler command structure to avoid shell issues if possible, but && requires shell.
         let command = `${prismaCmd} generate && npm run dev -- -p ${port}`;
         if (!hasDeps) {
             command = `npm install && npx prisma generate && npm run dev -- -p ${port}`;
         }
-
-        console.log(`[API] Launching ${project}: ${command}`);
 
         const child = spawn(command, {
             cwd: projectDir,
@@ -79,10 +75,8 @@ export async function POST(req: Request) {
 
         global.__lovable_server_logs = [];
 
-        // Log output
         const log = (data: Buffer) => {
             const line = data.toString();
-            console.log(`[${project}] ${line}`);
             global.__lovable_server_logs.push(line);
             if (global.__lovable_server_logs.length > 500) global.__lovable_server_logs.shift();
         };
@@ -91,6 +85,8 @@ export async function POST(req: Request) {
         child.stderr?.on('data', log);
 
         global.__lovable_dev_server = child;
+        global.__lovable_project = project;
+        global.__lovable_url = `http://localhost:${port}`;
 
         const estTime = hasDeps ? 3000 : 45000;
 
@@ -102,7 +98,6 @@ export async function POST(req: Request) {
         });
 
     } catch (error) {
-        console.error('Run error:', error);
         return NextResponse.json({ error: String(error) }, { status: 500 });
     }
 }

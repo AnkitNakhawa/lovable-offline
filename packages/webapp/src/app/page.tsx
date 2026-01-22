@@ -2,14 +2,12 @@
 import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
-  // State
   const [projects, setProjects] = useState<string[]>([]);
   const [activeProject, setActiveProject] = useState<string | null>(null);
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Preview State
   const [activeTab, setActiveTab] = useState<'code' | 'preview' | 'logs'>('preview');
   const [logs, setLogs] = useState<string[]>([]);
   const [files, setFiles] = useState<string[]>([]);
@@ -20,30 +18,26 @@ export default function Home() {
   const [statusMsg, setStatusMsg] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [isRecompiling, setIsRecompiling] = useState(false);
+  const [isServerReady, setIsServerReady] = useState(false);
 
-  // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load Projects
   useEffect(() => {
     fetch('/api/projects').then(res => res.json()).then(data => setProjects(data.projects || []));
   }, [loading]);
 
-  // Scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load files when project changes
   useEffect(() => {
     if (activeProject) {
       fetchFiles();
-      // Default to a useful file
       setActiveFile(null);
     }
   }, [activeProject]);
 
-  // Load file content when file changes
   useEffect(() => {
     if (activeProject && activeFile) {
       fetch('/api/files', {
@@ -55,19 +49,51 @@ export default function Home() {
     }
   }, [activeProject, activeFile]);
 
-  // Poll logs
   useEffect(() => {
-    if (activeTab === 'logs' || running) {
+    // Poll status if we have an active project or are running something
+    if (activeProject || running) {
       const interval = setInterval(async () => {
         try {
           const res = await fetch('/api/status');
           const data = await res.json();
-          if (data.logs) setLogs(data.logs);
+          if (data.logs) {
+            setLogs(data.logs);
+            // Check for recompiling state
+            const recentLogs = data.logs.slice(-5);
+            const isRebuilding = recentLogs.some((l: string) => {
+              const lower = l.toLowerCase();
+              return lower.includes('fast refresh') || lower.includes('compiling') || lower.includes('rebuilding');
+            });
+            const isDone = recentLogs.some((l: string) => {
+              const lower = l.toLowerCase();
+              return lower.includes('done in') || lower.includes('compiled client and server successfully');
+            });
+
+            if (isRebuilding && !isDone) {
+              setIsRecompiling(true);
+            } else if (isDone) {
+              setIsRecompiling(false);
+            }
+          }
+
+          if (data.running && data.project === activeProject) {
+            setIsServerReady(true);
+            if (data.url && previewUrl !== data.url) setPreviewUrl(data.url);
+          } else {
+            setIsServerReady(false);
+          }
         } catch (e) { }
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [activeTab, running]);
+  }, [activeProject, running, previewUrl]);
+
+  // Auto-run when switching to preview
+  useEffect(() => {
+    if (activeTab === 'preview' && activeProject && !running && !isServerReady) {
+      runProject();
+    }
+  }, [activeTab, activeProject, isServerReady, running]);
 
   const deleteProject = async (p: string) => {
     try {
@@ -103,13 +129,6 @@ export default function Home() {
       setStatusMsg(data.message);
       if (data.url) setPreviewUrl(data.url);
 
-      // Auto-reload iframe after estimated delay
-      setTimeout(() => {
-        const i = document.getElementById('preview-frame') as HTMLIFrameElement;
-        if (i) i.src = data.url || previewUrl;
-        setStatusMsg('');
-        setRunning(false);
-      }, data.estimatedTimeMs);
     } catch (e) {
       setStatusMsg('Error starting');
       setRunning(false);
@@ -149,12 +168,12 @@ export default function Home() {
           setActiveTab('code');
         } else {
           setMessages(prev => [...prev, { role: 'assistant', content: `Updated "${data.project}".` }]);
-          // Refresh files
           fetchFiles();
         }
       }
-    } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${err.message}` }]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${msg}` }]);
     } finally {
       setLoading(false);
     }
@@ -162,10 +181,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-gray-950 text-white font-sans overflow-hidden">
-
-      {/* LEFT SIDEBAR: CHAT */}
       <div className="w-[400px] flex flex-col border-r border-gray-800 bg-gray-900">
-        {/* Header / Project Switcher */}
         <div className="h-14 border-b border-gray-800 flex items-center px-4 justify-between bg-gray-900">
           <div className="relative">
             <button
@@ -175,7 +191,6 @@ export default function Home() {
               {activeProject ? activeProject : 'Select Project'}
               <span className="text-[10px] text-gray-400">▼</span>
             </button>
-            {/* Dropdown */}
             {isDropdownOpen && (
               <div className="absolute top-full left-0 mt-2 w-56 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
                 <button
@@ -219,7 +234,6 @@ export default function Home() {
           <div className="text-xs text-gray-500">Lovable Offline</div>
         </div>
 
-        {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
           {messages.length === 0 && (
             <div className="mt-10 text-center text-gray-600">
@@ -246,7 +260,6 @@ export default function Home() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
         <div className="p-4 border-t border-gray-800 bg-gray-900">
           <form onSubmit={handleSubmit} className="relative">
             <textarea
@@ -274,9 +287,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: PREVIEW / CODE */}
       <div className="flex-1 flex flex-col bg-gray-950">
-        {/* Toolbar */}
         <div className="h-14 border-b border-gray-800 flex items-center px-4 justify-between bg-gray-950">
           <div className="flex bg-gray-800 rounded-lg p-1">
             <button
@@ -305,7 +316,7 @@ export default function Home() {
               <button
                 onClick={runProject}
                 disabled={running || !activeProject}
-                className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded flex items-center gap-1 transition-colors font-medium"
+                className="hidden bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded flex items-center gap-1 transition-colors font-medium"
               >
                 {running ? '⏳' : '▶'} Run
               </button>
@@ -323,21 +334,43 @@ export default function Home() {
           )}
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-hidden relative">
           {activeTab === 'preview' ? (
-            <div className="w-full h-full bg-white">
-              <iframe
-                id="preview-frame"
-                src={previewUrl}
-                className="w-full h-full border-none"
-                title="Preview"
-              />
+            <div className="w-full h-full bg-white relative">
+              {(isServerReady) ? (
+                <>
+                  <iframe
+                    id="preview-frame"
+                    src={previewUrl}
+                    className="w-full h-full border-none"
+                    title="Preview"
+                  />
+                  {isRecompiling && (
+                    <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10">
+                      <div className="bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+                        <span className="animate-spin">⟳</span> Updating...
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="absolute inset-0 bg-gray-900 flex flex-col items-center justify-center text-gray-400 gap-4">
+                  {running ? (
+                    <>
+                      <div className="animate-spin text-4xl">⟳</div>
+                      <div>{statusMsg || 'Starting server...'}</div>
+                    </>
+                  ) : (
+                    <div>Ready to start...</div>
+                  )}
+                </div>
+              )}
+
               <div className="absolute bottom-0 left-0 right-0 bg-gray-900/90 text-gray-400 text-xs p-2 text-center border-t border-gray-800 pointer-events-none">
                 To activate preview: <span className="font-mono text-gray-200 select-all pointer-events-auto">cd workspaces/{activeProject || 'project'} && npm install && npm run dev</span>
               </div>
               {!activeProject && (
-                <div className="absolute inset-0 bg-gray-900 flex items-center justify-center text-gray-500">
+                <div className="absolute inset-0 bg-gray-900 flex items-center justify-center text-gray-500 z-20">
                   Select a project to view preview
                 </div>
               )}
@@ -350,7 +383,6 @@ export default function Home() {
             </div>
           ) : (
             <div className="flex h-full">
-              {/* File Tree */}
               <div className="w-64 border-r border-gray-800 overflow-y-auto bg-gray-950 p-2">
                 {files.map(f => (
                   <button
@@ -362,7 +394,6 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              {/* Code Editor */}
               <div className="flex-1 overflow-auto bg-[#1e1e1e]">
                 {activeFile ? (
                   <pre className="p-4 text-xs font-mono text-gray-300 leading-relaxed">
