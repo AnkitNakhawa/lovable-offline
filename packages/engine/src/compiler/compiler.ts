@@ -19,13 +19,31 @@ export async function compileApp(
     }
   }
 
-  // If no theme selected or found, default to first one or a fallback?
-  // Using modern as default if nothing found
+  // If no theme selected or found, default to first one or a fallback
   if (!themeData) {
     const themesPath = path.resolve(__dirname, '../../../templates/themes.json');
     if (fs.existsSync(themesPath)) {
       const themes = await fs.readJSON(themesPath);
       themeData = themes.themes[0];
+    } else {
+      // Hardcoded fallback if themes.json doesn't exist
+      themeData = {
+        id: 'modern',
+        name: 'Modern Clean',
+        colors: {
+          primary: '#3b82f6',
+          'primary-foreground': '#ffffff',
+          secondary: '#f1f5f9',
+          'secondary-foreground': '#0f172a',
+          background: '#ffffff',
+          foreground: '#0f172a',
+          muted: '#f8fafc',
+          'muted-foreground': '#64748b',
+          border: '#e2e8f0'
+        },
+        radius: '0.5rem',
+        font: 'Inter'
+      };
     }
   }
 
