@@ -30,6 +30,26 @@ export class AutoHealingAgent {
     }
 
     /**
+     * Update healing status on the server
+     */
+    private async updateStatus(status: 'idle' | 'detecting' | 'analyzing' | 'fixing' | 'verifying', error?: string, fix?: string): Promise<void> {
+        try {
+            await fetch(`${this.apiBaseUrl}/api/healing-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    active: status !== 'idle',
+                    status,
+                    error: error || null,
+                    fix: fix || null
+                })
+            });
+        } catch (e) {
+            // Silently fail - status updates are not critical
+        }
+    }
+
+    /**
      * Fetch current server logs from the webapp API
      */
     async fetchLogs(): Promise<{ logs: string[]; running: boolean; project: string }> {
@@ -161,10 +181,12 @@ Keep it concise and specific. Do NOT include code, just the instruction.`;
                 }
 
                 // Parse errors
+                await this.updateStatus('detecting');
                 const errors = this.parseErrors(status.logs);
 
                 if (errors.length === 0) {
                     log('No errors detected. System healthy!');
+                    await this.updateStatus('idle');
                     retryCount = 0; // Reset retry count on success
                     lastErrorSignature = '';
                     continue;
@@ -192,17 +214,21 @@ Keep it concise and specific. Do NOT include code, just the instruction.`;
 
                 // Suggest fix
                 log('Asking AI for fix suggestion...');
+                await this.updateStatus('analyzing', latestError.message.substring(0, 200));
                 const fixInstruction = await this.suggestFix(latestError);
                 log(`AI suggests: ${fixInstruction}`);
 
                 // Apply fix
                 log('Applying fix...');
+                await this.updateStatus('fixing', latestError.message.substring(0, 200), fixInstruction);
                 const success = await this.applyFix(projectName, fixInstruction);
 
                 if (success) {
                     log('Fix applied successfully. Waiting for recompilation...');
+                    await this.updateStatus('verifying', latestError.message.substring(0, 200), fixInstruction);
                 } else {
                     log('Failed to apply fix.');
+                    await this.updateStatus('idle');
                     retryCount++;
                 }
 
@@ -213,6 +239,7 @@ Keep it concise and specific. Do NOT include code, just the instruction.`;
         }
 
         log('Auto-healing session ended.');
+        await this.updateStatus('idle');
     }
 }
 

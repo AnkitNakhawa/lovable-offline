@@ -20,6 +20,12 @@ export default function Home() {
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [isRecompiling, setIsRecompiling] = useState(false);
   const [isServerReady, setIsServerReady] = useState(false);
+  const [healingStatus, setHealingStatus] = useState<{
+    active: boolean;
+    status: string;
+    error: string | null;
+    fix: string | null;
+  }>({ active: false, status: 'idle', error: null, fix: null });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +87,11 @@ export default function Home() {
             if (data.url && previewUrl !== data.url) setPreviewUrl(data.url);
           } else {
             setIsServerReady(false);
+          }
+
+          // Update healing status
+          if (data.healing) {
+            setHealingStatus(data.healing);
           }
         } catch (e) { }
       }, 1000);
@@ -349,6 +360,34 @@ export default function Home() {
                     <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10">
                       <div className="bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
                         <span className="animate-spin">⟳</span> Updating...
+                      </div>
+                    </div>
+                  )}
+                  {healingStatus.active && (
+                    <div className="absolute inset-0 bg-purple-900/50 backdrop-blur-sm flex items-center justify-center z-20">
+                      <div className="bg-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl max-w-md">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-2xl animate-pulse">🤖</span>
+                          <div className="font-bold text-lg">Auto-Healing Active</div>
+                        </div>
+                        <div className="text-sm text-gray-300 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-purple-400">Status:</span>
+                            <span className="capitalize">{healingStatus.status}</span>
+                          </div>
+                          {healingStatus.error && (
+                            <div className="text-xs text-red-300 bg-red-900/30 p-2 rounded mt-2">
+                              <div className="font-semibold mb-1">Error Detected:</div>
+                              <div className="opacity-80">{healingStatus.error}</div>
+                            </div>
+                          )}
+                          {healingStatus.fix && (
+                            <div className="text-xs text-green-300 bg-green-900/30 p-2 rounded mt-2">
+                              <div className="font-semibold mb-1">AI Suggested Fix:</div>
+                              <div className="opacity-80">{healingStatus.fix}</div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}

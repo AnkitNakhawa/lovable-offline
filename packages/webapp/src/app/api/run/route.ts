@@ -11,6 +11,10 @@ declare global {
     var __lovable_server_logs: string[];
     var __lovable_project: string | undefined;
     var __lovable_url: string | undefined;
+    var __lovable_healing_active: boolean;
+    var __lovable_healing_error: string | null;
+    var __lovable_healing_fix: string | null;
+    var __lovable_healing_status: 'idle' | 'detecting' | 'analyzing' | 'fixing' | 'verifying';
 }
 
 function findAvailablePort(startPort: number): Promise<number> {
