@@ -26,6 +26,7 @@ export default function Home() {
     error: string | null;
     fix: string | null;
   }>({ active: false, status: 'idle', error: null, fix: null });
+  const [healingAgentRunning, setHealingAgentRunning] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -140,9 +141,34 @@ export default function Home() {
       setStatusMsg(data.message);
       if (data.url) setPreviewUrl(data.url);
 
+      // Auto-start healing agent
+      toggleHealingAgent(true);
+
     } catch (e) {
       setStatusMsg('Error starting');
       setRunning(false);
+    }
+  };
+
+  const toggleHealingAgent = async (forceStart?: boolean) => {
+    if (!activeProject) return;
+
+    const shouldStart = forceStart !== undefined ? forceStart : !healingAgentRunning;
+
+    try {
+      const res = await fetch('/api/healing-agent', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: shouldStart ? 'start' : 'stop',
+          project: activeProject
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setHealingAgentRunning(shouldStart);
+      }
+    } catch (e) {
+      console.error('Failed to toggle healing agent:', e);
     }
   };
 
@@ -340,6 +366,16 @@ export default function Home() {
               />
               <button onClick={() => { const i = document.getElementById('preview-frame') as HTMLIFrameElement; if (i) i.src = previewUrl; }} className="text-gray-400 hover:text-white">
                 🔄
+              </button>
+              <button
+                onClick={() => toggleHealingAgent()}
+                className={`text-xs px-3 py-1.5 rounded font-medium transition-colors ${healingAgentRunning
+                    ? 'bg-purple-600 text-white hover:bg-purple-500'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                title={healingAgentRunning ? 'Auto-healing enabled' : 'Auto-healing disabled'}
+              >
+                {healingAgentRunning ? '🤖 ON' : '🤖 OFF'}
               </button>
             </div>
           )}
