@@ -203,6 +203,8 @@ Keep it concise and specific. Do NOT include code, just the instruction.`;
 
                     if (retryCount >= this.maxRetries) {
                         log('Max retries reached. Stopping heal loop.');
+                        const sorryMessage = `I tried ${this.maxRetries} times but couldn't fix this error. This might need manual intervention. Error: ${latestError.message.substring(0, 150)}`;
+                        await this.updateStatus('idle', sorryMessage, 'Manual fix needed - agent gave up after 3 attempts');
                         break;
                     }
                 } else {
