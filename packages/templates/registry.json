@@ -1,0 +1,81 @@
+{
+    "blocks": [
+        {
+            "id": "navbar",
+            "name": "Navbar",
+            "description": "Navigation bar with logo and links",
+            "schema": "export type NavbarBlock = {\n  type: \"Navbar\";\n  logo: string;\n  links: { label: string; href: string }[];\n}",
+            "path": "blocks/navbar.tsx.hbs"
+        },
+        {
+            "id": "hero",
+            "name": "Hero",
+            "description": "Large top banner with headline, subheadline, and CTA",
+            "schema": "export type HeroBlock = {\n  type: \"Hero\";\n  headline: string;\n  subheadline: string;\n  ctaText: string;\n}",
+            "path": "blocks/hero.tsx.hbs"
+        },
+        {
+            "id": "features",
+            "name": "Features",
+            "description": "3-column grid of features",
+            "schema": "export type FeaturesBlock = {\n  type: \"Features\";\n  title: string;\n  features: { title: string; description: string }[];\n}",
+            "path": "blocks/features.tsx.hbs"
+        },
+        {
+            "id": "pricing",
+            "name": "Pricing",
+            "description": "Pricing plan cards",
+            "schema": "export type PricingBlock = {\n  type: \"Pricing\";\n  title: string;\n  plans: { \n    name: string; \n    price: string; \n    features: string[]; \n    ctaText: string; \n  }[];\n}",
+            "path": "blocks/pricing.tsx.hbs"
+        },
+        {
+            "id": "footer",
+            "name": "Footer",
+            "description": "Page footer",
+            "schema": "export type FooterBlock = {\n  type: \"Footer\";\n  copyright: string;\n  links: { label: string; href: string }[];\n}",
+            "path": "blocks/footer.tsx.hbs"
+        },
+        {
+            "id": "table-crud",
+            "name": "TableCRUD",
+            "description": "Full database CRUD table (requires a matching ModelSpec)",
+            "schema": "export type TableCRUDBlock = {\n  type: \"TableCRUD\";\n  model: string; \n}",
+            "path": "blocks/table-crud.tsx.hbs"
+        },
+        {
+            "id": "faq",
+            "name": "FAQ",
+            "description": "Frequently Asked Questions accordion",
+            "schema": "export type FAQBlock = {\n  type: \"FAQ\";\n  title: string;\n  questions: { question: string; answer: string }[];\n}",
+            "path": "blocks/faq.tsx.hbs"
+        },
+        {
+            "id": "testimonials",
+            "name": "Testimonials",
+            "description": "Grid of user reviews/testimonials",
+            "schema": "export type TestimonialsBlock = {\n  type: \"Testimonials\";\n  title: string;\n  testimonials: { name: string; role: string; quote: string }[];\n}",
+            "path": "blocks/testimonials.tsx.hbs"
+        },
+        {
+            "id": "contact",
+            "name": "Contact",
+            "description": "Contact form with name, email, and message inputs",
+            "schema": "export type ContactBlock = {\n  type: \"Contact\";\n  title: string;\n  subtitle: string;\n  buttonText: string;\n}",
+            "path": "blocks/contact.tsx.hbs"
+        },
+        {
+            "id": "stats",
+            "name": "Stats",
+            "description": "Row of statistical numbers (e.g. user count, revenue)",
+            "schema": "export type StatsBlock = {\n  type: \"Stats\";\n  stats: { label: string; value: string }[];\n}",
+            "path": "blocks/stats.tsx.hbs"
+        },
+        {
+            "id": "custom",
+            "name": "Custom",
+            "description": "ANY other component not listed here (Carousel, Calendar, Map, etc). Use this for custom requirements.",
+            "schema": "export type CustomBlock = {\n  type: \"Custom\";\n  name: string; // e.g. \"Carousel\"\n  code: string; // The full React component code (starting with 'export default function ComponentName() {')\n}",
+            "path": "blocks/custom.tsx.hbs"
+        }
+    ]
+}

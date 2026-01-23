@@ -3,6 +3,7 @@ export type AppSpec = {
   stack: "nextjs"
   models: ModelSpec[]
   pages: PageSpec[]
+  theme?: string
 }
 
 export type ModelSpec = {
@@ -21,7 +22,14 @@ export type PageSpec = {
   blocks: BlockSpec[]
 }
 
-export type BlockSpec = TableCRUDBlock | HeroBlock | FeaturesBlock | NavbarBlock | FooterBlock | PricingBlock
+export type BlockSpec = TableCRUDBlock | HeroBlock | FeaturesBlock | NavbarBlock | FooterBlock | PricingBlock | CustomBlock
+
+export type CustomBlock = {
+  type: "Custom"
+  name: string
+  code: string
+  id?: string
+}
 
 export type TableCRUDBlock = {
   type: "TableCRUD"

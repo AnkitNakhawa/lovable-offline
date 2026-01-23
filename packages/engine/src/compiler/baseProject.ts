@@ -3,14 +3,14 @@ import * as path from 'path';
 import Handlebars from 'handlebars';
 import { getTemplatesDir } from "./render";
 
-export async function generateBaseProject(name: string, outDir: string) {
+export async function generateBaseProject(name: string, outDir: string, theme?: any) {
     //set template directory
     const templatesDir = path.join(getTemplatesDir(), 'base');
 
     // ensure output dir
     await fs.mkdir(outDir, { recursive: true });
 
-    await copyRecursive(templatesDir, outDir, { name, appName: name });
+    await copyRecursive(templatesDir, outDir, { name, appName: name, theme });
 }
 
 async function copyRecursive(src: string, dest: string, context: any) {

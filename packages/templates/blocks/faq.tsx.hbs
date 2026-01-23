@@ -1,0 +1,15 @@
+<section className="py-24 bg-white">
+    <div className="container mx-auto px-4 max-w-3xl">
+        <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{title}}</h2>
+        </div>
+        <div className="space-y-4">
+            {{#each questions}}
+            <div className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{{question}}</h3>
+                <p className="text-gray-600">{{answer}}</p>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</section>

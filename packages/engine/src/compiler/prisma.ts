@@ -37,6 +37,8 @@ datasource db {
     schema += `  id    String @id @default(cuid())\n`;
 
     for (const field of model.fields) {
+      if (field.name.toLowerCase() === 'id') continue;
+
       // Simple mapping for now based on context.md example
       // { "name": "title", "type": "string" }
       let prismaType = 'String';

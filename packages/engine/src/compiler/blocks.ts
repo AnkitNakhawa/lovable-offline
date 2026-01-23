@@ -169,5 +169,33 @@ export async function generateBlock(block: BlockSpec, models: ModelSpec[], outDi
             imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
         };
     }
+    if (block.type === 'Custom') {
+        if (!block.id) {
+            block.id = Math.random().toString(36).substring(7);
+        }
+        // Normalize component name to be PascalCase and safe
+        const safeName = block.name.replace(/[^a-zA-Z0-9]/g, '');
+        const componentName = `${safeName}${block.id}`;
+
+        // Inject component name into the code if possible or wrap it?
+        // For simplicity, we assume the AI generates "export default function ComponentName() ..."
+        // We will replace "export default function \w+" with "export default function RealName"
+        let code = block.code;
+        if (code.includes('export default function')) {
+            code = code.replace(/export default function \w+/, `export default function ${componentName}`);
+        } else {
+            // Fallback if no export default function found, just dump code? 
+            // Or wrap? Let's assume the AI follows instruction to use export default function.
+        }
+
+        const componentPath = path.join(outDir, 'components', 'generated', `${componentName}.tsx`);
+        await fs.mkdir(path.dirname(componentPath), { recursive: true });
+        await smartWriteFile(componentPath, `// GENERATED FILE - DO NOT EDIT\n${code}`);
+
+        return {
+            code: `<${componentName} />`,
+            imports: [`import ${componentName} from "@/components/generated/${componentName}";`]
+        };
+    }
     return { code: "", imports: [] };
 }

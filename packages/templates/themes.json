@@ -1,0 +1,76 @@
+{
+    "themes": [
+        {
+            "id": "modern",
+            "name": "Modern Clean",
+            "description": "Clean, minimal, professional. Good for SaaS, Business.",
+            "colors": {
+                "primary": "#3b82f6",
+                "primary-foreground": "#ffffff",
+                "secondary": "#f1f5f9",
+                "secondary-foreground": "#0f172a",
+                "background": "#ffffff",
+                "foreground": "#0f172a",
+                "muted": "#f8fafc",
+                "muted-foreground": "#64748b",
+                "border": "#e2e8f0"
+            },
+            "radius": "0.5rem",
+            "font": "Inter"
+        },
+        {
+            "id": "dark",
+            "name": "Dark Mode",
+            "description": "Sleek, dark, high contrast. Good for DevTools, Crypto, Gaming.",
+            "colors": {
+                "primary": "#3b82f6",
+                "primary-foreground": "#ffffff",
+                "secondary": "#1e293b",
+                "secondary-foreground": "#f8fafc",
+                "background": "#020617",
+                "foreground": "#f8fafc",
+                "muted": "#0f172a",
+                "muted-foreground": "#94a3b8",
+                "border": "#1e293b"
+            },
+            "radius": "0.5rem",
+            "font": "Inter"
+        },
+        {
+            "id": "playful",
+            "name": "Playful",
+            "description": "Fun, vibrant, rounded. Good for Toys, Food, Personal.",
+            "colors": {
+                "primary": "#f43f5e",
+                "primary-foreground": "#ffffff",
+                "secondary": "#fff1f2",
+                "secondary-foreground": "#881337",
+                "background": "#fff1f2",
+                "foreground": "#4c0519",
+                "muted": "#ffe4e6",
+                "muted-foreground": "#9f1239",
+                "border": "#fda4af"
+            },
+            "radius": "1rem",
+            "font": "Comic Neue"
+        },
+        {
+            "id": "elegant",
+            "name": "Elegant",
+            "description": "Sophisticated, serif fonts, muted tones. Good for Luxury, Portfolio, Fashion.",
+            "colors": {
+                "primary": "#1c1917",
+                "primary-foreground": "#fafaf9",
+                "secondary": "#e7e5e4",
+                "secondary-foreground": "#1c1917",
+                "background": "#fafaf9",
+                "foreground": "#1c1917",
+                "muted": "#f5f5f4",
+                "muted-foreground": "#57534e",
+                "border": "#d6d3d1"
+            },
+            "radius": "0rem",
+            "font": "Playfair Display"
+        }
+    ]
+}
